@@ -1,8 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
+
+
+func cleanInput(text string) []string {
+	splittedString := strings.Fields(text)
+	return splittedString 
+}
 
 func main() {
-	fmt.Println("Hello, World!")
-
+	text := " hello world  "
+	fmt.Println(text)
 }
