@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/Afsinoz/pokedexcli/internal/pokecache"
 )
 
 type Location struct {
@@ -17,16 +20,27 @@ type Location struct {
 }
 
 func MapGet(URL string) (next string, previous string, results []string, err error) {
+	cache := pokecache.NewCache(100 * time.Second)
+	var data []byte
+	byteValue, ok := cache.Get(URL)
+	if ok {
+		data = byteValue
+	} else {
 
-	resp, err := http.Get(URL)
-	if err != nil {
-		return "", "", []string{}, err
-	}
-	defer resp.Body.Close()
+		resp, err := http.Get(URL)
 
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", "", []string{}, err
+		if err != nil {
+			return "", "", []string{}, err
+		}
+		defer resp.Body.Close()
+
+		data, err = io.ReadAll(resp.Body)
+		if err != nil {
+			return "", "", []string{}, err
+		}
+
+		cache.Add(URL, data)
+
 	}
 
 	var location Location

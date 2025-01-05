@@ -75,15 +75,10 @@ type Config struct {
 }
 
 func main() {
-	//	err := pokedexapi.MapGet()
-	//	if err != nil {
-	//		fmt.Println(err)
-	//	}
-	// define a pointer to config variable
 
 	var config Config
 
-	mapEndPoint := "https://pokeapi.co/api/v2/location/?limit=20&offset=0"
+	mapEndPoint := "https://pokeapi.co/api/v2/location-area/?limit=20&offset=0"
 
 	config.Next = mapEndPoint
 	config.Previous = ""
