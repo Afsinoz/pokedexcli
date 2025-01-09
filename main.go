@@ -9,18 +9,22 @@ import (
 	"github.com/Afsinoz/pokedexcli/internal/pokedexapi"
 )
 
+const (
+	baseURL = "https://pokeapi.co/api/v2/location-area/"
+)
+
 func cleanInput(text string) []string {
 	splittedString := strings.Fields(text)
 	return splittedString
 }
 
-func commandExit(config *Config) error {
+func commandExit(config *Config, param string) error {
 	defer os.Exit(0)
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	return fmt.Errorf("Here is the error")
 }
 
-func commandHelp(config *Config) error {
+func commandHelp(config *Config, param string) error {
 
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
@@ -28,7 +32,7 @@ func commandHelp(config *Config) error {
 	return fmt.Errorf("Here is the error of help")
 }
 
-func commandMap(config *Config) error {
+func commandMap(config *Config, param string) error {
 
 	next, previous, places, err := pokedexapi.MapGet(config.Next)
 	if err != nil {
@@ -45,7 +49,7 @@ func commandMap(config *Config) error {
 	return nil
 }
 
-func commandMapBack(config *Config) error {
+func commandMapBack(config *Config, param string) error {
 	if config.Previous == "" {
 		fmt.Println("This is literally the first location!")
 		return nil
@@ -63,10 +67,25 @@ func commandMapBack(config *Config) error {
 	return nil
 }
 
+func commandExplore(config *Config, param string) error {
+	// URL :=
+	fmt.Println("Exploring ", param)
+	areaName := param
+	pokeNames, err := pokedexapi.PokeGet(baseURL, areaName)
+	if err != nil {
+		return fmt.Errorf("PokeGet problem: ", err)
+	}
+	fmt.Println("Found Pokemon:")
+	for _, pokeName := range pokeNames {
+		fmt.Println("- ", pokeName)
+	}
+	return nil
+}
+
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *Config) error
+	callback    func(config *Config, param string) error
 }
 
 type Config struct {
@@ -78,7 +97,7 @@ func main() {
 
 	var config Config
 
-	mapEndPoint := "https://pokeapi.co/api/v2/location-area/?limit=20&offset=0"
+	mapEndPoint := baseURL
 
 	config.Next = mapEndPoint
 	config.Previous = ""
@@ -104,6 +123,11 @@ func main() {
 			description: "Displays the name of the previous 20 locations",
 			callback:    commandMapBack,
 		},
+		"explore": {
+			name:        "explore <area-name>",
+			description: "Displays the name of the pokemons in the areas",
+			callback:    commandExplore,
+		},
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -114,16 +138,22 @@ func main() {
 		userInput = strings.ToLower(userInput)
 		userInputList := cleanInput(userInput)
 		firstWord := userInputList[0]
+		var secondWord string
+		if len(userInputList) < 2 {
+			secondWord = ""
+		} else {
+			secondWord = userInputList[1]
+		}
 		command, ok := supportedCommands[firstWord]
 		if ok {
 			if command.name == "help" {
 
-				command.callback(&config)
+				command.callback(&config, secondWord)
 				for command := range supportedCommands {
 					fmt.Println(supportedCommands[command].name, ":", supportedCommands[command].description)
 				}
 
-			} else if err := command.callback(&config); err != nil {
+			} else if err := command.callback(&config, secondWord); err != nil {
 				fmt.Println(err)
 			}
 		} else {
@@ -132,7 +162,7 @@ func main() {
 
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "reading the std input:", err)
+		fmt.Println(os.Stderr, "reading the std input:", err)
 	}
 
 }
