@@ -89,7 +89,7 @@ func commandExplore(config *Config, param string) error {
 func commandCatch(config *Config, pokemon string) error {
 	//TODO: For the next time, you need to get the pokemon information, not just the name:w
 
-	fmt.Println("Throwing a Pokeball at ", pokemon, "...")
+	fmt.Printf("Throwing a Pokeball at %v...\n", pokemon)
 
 	base_experience, err := pokeapi.PokemonInfoGet(pokemon)
 	if err != nil {
@@ -98,12 +98,12 @@ func commandCatch(config *Config, pokemon string) error {
 	}
 	catchingChance := rand.Intn(base_experience)
 	if catchingChance >= base_experience/2 {
-		fmt.Println(pokemon, "was caught")
+		fmt.Println(pokemon, "was caught!")
 	} else {
 		fmt.Println(pokemon, "escaped!")
 	}
-	fmt.Println("The exp level of the ", pokemon, " is ", base_experience)
-	fmt.Println("The catching chance is: ", catchingChance)
+	//fmt.Println("The exp level of the ", pokemon, " is ", base_experience)
+	//fmt.Println("The catching chance is: ", catchingChance)
 	return nil
 
 }
