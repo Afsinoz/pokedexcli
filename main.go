@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Afsinoz/pokedexcli/internal/pokedexapi"
+	"github.com/Afsinoz/pokedexcli/internal/pokeapi"
 )
 
 const (
-	baseURL = "https://pokeapi.co/api/v2/location-area/"
+	baseURL = "https://pokeapi.co/api/v2"
 )
 
 func cleanInput(text string) []string {
@@ -34,7 +34,7 @@ func commandHelp(config *Config, param string) error {
 
 func commandMap(config *Config, param string) error {
 
-	next, previous, places, err := pokedexapi.MapGet(config.Next)
+	next, previous, places, err := pokeapi.MapGet(config.Next)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -54,7 +54,7 @@ func commandMapBack(config *Config, param string) error {
 		fmt.Println("This is literally the first location!")
 		return nil
 	}
-	next, previous, places, err := pokedexapi.MapGet(config.Previous)
+	next, previous, places, err := pokeapi.MapGet(config.Previous)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -68,10 +68,10 @@ func commandMapBack(config *Config, param string) error {
 }
 
 func commandExplore(config *Config, param string) error {
-	// URL :=
 	fmt.Println("Exploring ", param)
 	areaName := param
-	pokeNames, err := pokedexapi.PokeGet(baseURL, areaName)
+	URL := baseURL + "/location-area/"
+	pokeNames, err := pokeapi.PokeGet(URL, areaName)
 	if err != nil {
 		return fmt.Errorf("PokeGet problem: ", err)
 	}
@@ -82,6 +82,19 @@ func commandExplore(config *Config, param string) error {
 	return nil
 }
 
+func commandCatch(config *Config, pokemon string) error {
+
+	fmt.Println("Throwing a Pokeball at ", pokemon, "...")
+
+	base_experience, err := pokeapi.PokemonInfoGet(pokemon)
+	if err != nil {
+		fmt.Println("PokeinfoGet function err: ", err)
+	}
+
+	fmt.Println("The exp level of the ", pokemon, " is ", base_experience)
+	return nil
+
+}
 type cliCommand struct {
 	name        string
 	description string
@@ -127,6 +140,11 @@ func main() {
 			name:        "explore <area-name>",
 			description: "Displays the name of the pokemons in the areas",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch <pokemon-name>",
+			description: "Catching the pokemon base on Experience level.",
+			callback:    commandCatch,
 		},
 	}
 
