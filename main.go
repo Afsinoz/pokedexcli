@@ -6,12 +6,16 @@ import (
 	"os"
 	"strings"
 
+	"math/rand"
+
 	"github.com/Afsinoz/pokedexcli/internal/pokeapi"
 )
 
 const (
 	baseURL = "https://pokeapi.co/api/v2"
 )
+
+// TODO: next time make it string to Pokemon
 
 func cleanInput(text string) []string {
 	splittedString := strings.Fields(text)
@@ -71,30 +75,39 @@ func commandExplore(config *Config, param string) error {
 	fmt.Println("Exploring ", param)
 	areaName := param
 	URL := baseURL + "/location-area/"
-	pokeNames, err := pokeapi.PokeGet(URL, areaName)
+	locationNames, err := pokeapi.PokeGet(URL, areaName)
 	if err != nil {
 		return fmt.Errorf("PokeGet problem: ", err)
 	}
 	fmt.Println("Found Pokemon:")
-	for _, pokeName := range pokeNames {
-		fmt.Println("- ", pokeName)
+	for _, locationName := range locationNames {
+		fmt.Println("- ", locationName)
 	}
 	return nil
 }
 
 func commandCatch(config *Config, pokemon string) error {
+	//TODO: For the next time, you need to get the pokemon information, not just the name:w
 
 	fmt.Println("Throwing a Pokeball at ", pokemon, "...")
 
 	base_experience, err := pokeapi.PokemonInfoGet(pokemon)
 	if err != nil {
 		fmt.Println("PokeinfoGet function err: ", err)
+		return err
 	}
-
+	catchingChance := rand.Intn(base_experience)
+	if catchingChance >= base_experience/2 {
+		fmt.Println(pokemon, "was caught")
+	} else {
+		fmt.Println(pokemon, "escaped!")
+	}
 	fmt.Println("The exp level of the ", pokemon, " is ", base_experience)
+	fmt.Println("The catching chance is: ", catchingChance)
 	return nil
 
 }
+
 type cliCommand struct {
 	name        string
 	description string

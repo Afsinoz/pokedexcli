@@ -72,9 +72,10 @@ type Area struct {
 	} `json:"pokemon_encounters"`
 }
 
-func MapGet(URL string) (next string, previous string, results []string, err error) {
+func MapGet(baseURL string) (next string, previous string, results []string, err error) {
 	//TODO: After finishing it make the cache 5 seconds, or smt less than 10
 	cache := pokecache.NewCache(100 * time.Second)
+	URL := baseURL + "/location-area/"
 	var data []byte
 	byteValue, ok := cache.Get(URL)
 	if ok {
