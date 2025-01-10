@@ -86,26 +86,52 @@ func commandExplore(config *Config, param string) error {
 	return nil
 }
 
-func commandCatch(config *Config, pokemon string) error {
-	//TODO: For the next time, you need to get the pokemon information, not just the name:w
+func commandCatch(cfg *Config, pokemonName string) error {
 
-	fmt.Printf("Throwing a Pokeball at %v...\n", pokemon)
-
-	base_experience, err := pokeapi.PokemonInfoGet(pokemon)
+	pokemon, err := pokeapi.PokemonInfoGet(pokemonName)
 	if err != nil {
 		fmt.Println("PokeinfoGet function err: ", err)
 		return err
 	}
+	base_experience := pokemon.BaseExperience
 	catchingChance := rand.Intn(base_experience)
+
+	fmt.Printf("Throwing a Pokeball at %v...\n", pokemon.Name)
+
 	if catchingChance >= base_experience/2 {
-		fmt.Println(pokemon, "was caught!")
+		fmt.Println(pokemon.Name, "was caught!")
+		cfg.caughtPokemon[pokemon.Name] = pokemon
 	} else {
-		fmt.Println(pokemon, "escaped!")
+		fmt.Println(pokemon.Name, "escaped!")
 	}
 	//fmt.Println("The exp level of the ", pokemon, " is ", base_experience)
 	//fmt.Println("The catching chance is: ", catchingChance)
 	return nil
 
+}
+
+func commandInspect(cfg *Config, pokemonName string) error {
+
+	pokemon, ok := cfg.caughtPokemon[pokemonName]
+	if !ok {
+		fmt.Println("you have not caught that pokemon")
+		return nil
+	}
+	fmt.Println("Name:", pokemon.Name)
+
+	fmt.Println("Heigt:", pokemon.Height)
+
+	fmt.Println("Weight:", pokemon.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range pokemon.Stats {
+		fmt.Println("-", stat.Stat.Name, ":", stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, ty := range pokemon.Types {
+		fmt.Println("-", ty.Type.Name)
+	}
+
+	return nil
 }
 
 type cliCommand struct {
@@ -115,8 +141,9 @@ type cliCommand struct {
 }
 
 type Config struct {
-	Next     string
-	Previous string
+	Next          string
+	Previous      string
+	caughtPokemon map[string]pokeapi.Pokemon
 }
 
 func main() {
@@ -127,6 +154,7 @@ func main() {
 
 	config.Next = mapEndPoint
 	config.Previous = ""
+	config.caughtPokemon = map[string]pokeapi.Pokemon{}
 
 	supportedCommands := map[string]cliCommand{
 		"exit": {
@@ -158,6 +186,11 @@ func main() {
 			name:        "catch <pokemon-name>",
 			description: "Catching the pokemon base on Experience level.",
 			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect <pokemon-name>",
+			description: "Inspecting <pokemon-name> if it is in the pokedex",
+			callback:    commandInspect,
 		},
 	}
 

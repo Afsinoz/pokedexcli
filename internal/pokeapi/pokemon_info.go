@@ -278,29 +278,30 @@ type Pokemon struct {
 }
 
 // Get Pokemon info
-func PokemonInfoGet(pokemonName string) (int, error) {
-
+func PokemonInfoGet(pokemonName string) (Pokemon, error) {
+	//TODO:add cache
 	URL := baseURL + "/pokemon/" + pokemonName
+
+	var pokemon Pokemon
 
 	var data []byte
 
 	resp, err := http.Get(URL)
 
 	if err != nil {
-		return 0, err
+		return pokemon, err
+
 	}
 	defer resp.Body.Close()
 
 	data, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, err
+		return pokemon, err
 	}
-
-	var pokemon Pokemon
 
 	if err := json.Unmarshal(data, &pokemon); err != nil {
-		return 0, err
+		return pokemon, err
 	}
 
-	return pokemon.BaseExperience, nil
+	return pokemon, nil
 }
