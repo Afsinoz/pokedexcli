@@ -100,6 +100,7 @@ func commandCatch(cfg *Config, pokemonName string) error {
 
 	if catchingChance >= base_experience/2 {
 		fmt.Println(pokemon.Name, "was caught!")
+		fmt.Println("You may now inspect it with the inspect command!")
 		cfg.caughtPokemon[pokemon.Name] = pokemon
 	} else {
 		fmt.Println(pokemon.Name, "escaped!")
@@ -132,6 +133,16 @@ func commandInspect(cfg *Config, pokemonName string) error {
 	}
 
 	return nil
+}
+
+func commandPokedex(cfg *Config, pokemonName string) error {
+
+	fmt.Println("Your Pokedex:")
+	for pokemonName, _ := range cfg.caughtPokemon {
+		fmt.Println("-", pokemonName)
+	}
+	return nil
+
 }
 
 type cliCommand struct {
@@ -191,6 +202,11 @@ func main() {
 			name:        "inspect <pokemon-name>",
 			description: "Inspecting <pokemon-name> if it is in the pokedex",
 			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "Pokedex",
+			description: "List of pokemons in the Pokedex",
+			callback:    commandPokedex,
 		},
 	}
 
