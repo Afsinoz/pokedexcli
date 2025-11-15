@@ -1,7 +1,6 @@
 # pokedexcli
 Personal Terminal Pokedex
 
-This is a personal project that is tutored in [boot.dev](boot.dev), and with some personal spices. 
 
 ## What is next here? 
 - TODO: Update the CLI to support the "up" arrow to cycle through previous commands
